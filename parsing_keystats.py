@@ -111,6 +111,7 @@ def parse_keystats_avg(sp500_df, stock_df):
         "stock_p_change_year_avg",
         "SP500",
         "SP500_p_change",
+        "SP500_p_change_year_avg"
     ] + features
 
     df = pd.DataFrame(columns=df_columns)
@@ -190,11 +191,15 @@ def parse_keystats_avg(sp500_df, stock_df):
             # SP500 prices now and one year later, and the percentage change
             sp500_price = float(sp500_df.loc[current_date, "Adj Close"])
             sp500_1y_price = float(sp500_df.loc[one_year_later, "Adj Close"])
+            sp500_1y_price_all = sp500_df.loc[current_date:one_year_later, "Adj Close"]
+            sp500_year_avg_price = sum(sp500_1y_price_all)/len(sp500_1y_price_all)
             # print(sp500_1y_price)
             sp500_p_change = round(
                 ((sp500_1y_price - sp500_price) / sp500_price * 100), 2
             )
-
+            sp500_p_change_year_avg = round(
+                ((sp500_year_avg_price-sp500_price)/sp500_price * 100), 2
+            )
             # Stock prices now and one year later. We need a try/except because some data is missing
             stock_price, stock_1y_price = "N/A", "N/A"
             try:
@@ -225,6 +230,7 @@ def parse_keystats_avg(sp500_df, stock_df):
                 stock_p_change_year_avg,
                 sp500_price,
                 sp500_p_change,
+                sp500_p_change_year_avg
             ] + value_list
 
             df = df.append(dict(zip(df_columns, new_df_row)), ignore_index=True)
