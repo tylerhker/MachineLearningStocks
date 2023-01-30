@@ -9,7 +9,13 @@ from utils import data_string_to_float
 
 # The path to your fundamental data
 statspath = "intraQuarter/_KeyStats/"
-
+# statspath = "intraQuarter/_test/"
+header = {'Connection': 'keep-alive',
+                   'Expires': '-1',
+                   'Upgrade-Insecure-Requests': '1',
+                   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) \
+                   AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36'
+                   }
 # These are the features that will be parsed
 features = [  # Valuation measures
     "Market Cap",
@@ -68,7 +74,10 @@ def check_yahoo():
         os.makedirs("forward/")
 
     # Retrieve a list of tickers from the fundamental data folder
-    ticker_list = os.listdir(statspath)
+    # ticker_list = os.listdir(statspath)
+
+    # Retrieve a list of tickers from excel(Tyler)
+    ticker_list = sp500ticker()
 
     # Required in macOS to remove the hidden index file.
     if ".DS_Store" in ticker_list:
@@ -77,7 +86,8 @@ def check_yahoo():
     for ticker in tqdm(ticker_list, desc="Download progress:", unit="tickers"):
         try:
             link = f"http://finance.yahoo.com/quote/{ticker.upper()}/key-statistics"
-            resp = requests.get(link)
+            # link = f"http://finance.yahoo.com/quote/AAPL/key-statistics"
+            resp = requests.get(link, headers=header)
 
             # Write results to forward/
             save = f"forward/{ticker}.html"
@@ -109,6 +119,7 @@ def forward():
     df = pd.DataFrame(columns=df_columns)
 
     tickerfile_list = os.listdir("forward/")
+    # tickerfile_list = sp500ticker()
 
     # Required in macOS to remove the hidden index file.
     if ".DS_Store" in tickerfile_list:
@@ -129,7 +140,7 @@ def forward():
                 regex = (
                     r">"
                     + re.escape(variable)
-                    + r".*?(\-?\d+\.*\d*K?M?B?|N/A[\\n|\s]*|>0|NaN)%?"
+                    + r".*?(\-?\d+\.*\d*K?M?B?T?|N/A[\\n|\s]*|>0|NaN)%?"
                     r"(</td>|</span>)"
                 )
                 value = re.search(regex, source, flags=re.DOTALL).group(1)
@@ -149,8 +160,15 @@ def forward():
 
     return df.replace("N/A", np.nan)
 
+def sp500ticker():
+    df = pd.read_excel('sp500ticker.xlsx', usecols ='A')
+    df.dropna(axis = 0,inplace=True)
+    tickers = list(df['Symbol'])
+    # print(tickers)
+    return tickers
 
 if __name__ == "__main__":
-    check_yahoo()
+    # check_yahoo()
     current_df = forward()
-    current_df.to_csv("forward_sample.csv", index=False)
+    current_df.to_csv("forward_sample_test.csv", index=False)
+    # sp500ticker()

@@ -5,7 +5,8 @@ import re
 from datetime import datetime
 from utils import data_string_to_float
 from tqdm import tqdm
-
+from bs4 import BeautifulSoup
+import requests
 
 # The directory where individual html files are stored
 statspath = "intraQuarter/_KeyStats/"
@@ -67,8 +68,10 @@ def preprocess_price_data():
     :return: SP500 and stock dataframes, with no missing rows.
     """
     # Read in SP500 data and stock data, parsing the dates.
-    sp500_raw_data = pd.read_csv("sp500_index.csv", index_col="Date", parse_dates=True)
-    stock_raw_data = pd.read_csv("stock_prices.csv", index_col="Date", parse_dates=True)
+    # sp500_raw_data = pd.read_csv("sp500_index.csv", index_col="Date", parse_dates=True)
+    # stock_raw_data = pd.read_csv("stock_prices.csv", index_col="Date", parse_dates=True)
+    sp500_raw_data = pd.read_csv("sp500_index_now.csv", index_col="Date", parse_dates=True)
+    stock_raw_data = pd.read_csv("stock_prices_now.csv", index_col="Date", parse_dates=True)
 
     # We will reindex to include the weekends.
     start_date = str(stock_raw_data.index[0])
@@ -83,6 +86,25 @@ def preprocess_price_data():
     stock_raw_data.ffill(inplace=True)
 
     return sp500_raw_data, stock_raw_data
+
+def get_sp500list():
+    '''
+    A function to get the current list of stock in SP500 from wiki
+    :returns: result_prices.csv
+    '''
+    response = requests.get("https://en.wikipedia.org/wiki/List_of_S&P_500_companies")
+    
+    contents = response.text
+    soup = BeautifulSoup(contents, features="html.parser")
+    table=soup.find('table', id='constituents')
+    columns = [i.get_text(strip=True) for i in table.find_all("th")]
+    data = []
+    for tr in table.find("tbody").find_all("tr"):
+        data.append([td.get_text(strip=True) for td in tr.find_all("td")])
+
+    df = pd.DataFrame(data, columns=columns)
+
+    df.to_excel("sp500_ticker.xlsx", index=False)
 
 
 def parse_keystats(sp500_df, stock_df):
@@ -178,10 +200,12 @@ def parse_keystats(sp500_df, stock_df):
             # Convert from unix time to YYYY-MM-DD, so we can look for the price in the dataframe
             # then calculate the percentage change.
             current_date = datetime.fromtimestamp(unix_time).strftime("%Y-%m-%d")
-            one_year_later = datetime.fromtimestamp(unix_time + 31536000).strftime(
+            # one_year_later = datetime.fromtimestamp(unix_time + 31536000).strftime(
+            #     "%Y-%m-%d"
+            # )
+            one_year_later = datetime.fromtimestamp(unix_time + 15768000).strftime(
                 "%Y-%m-%d"
             )
-
             # SP500 prices now and one year later, and the percentage change
             sp500_price = float(sp500_df.loc[current_date, "Adj Close"])
             sp500_1y_price = float(sp500_df.loc[one_year_later, "Adj Close"])
@@ -225,3 +249,4 @@ def parse_keystats(sp500_df, stock_df):
 if __name__ == "__main__":
     sp500_df, stock_df = preprocess_price_data()
     parse_keystats(sp500_df, stock_df)
+    # get_sp500list()

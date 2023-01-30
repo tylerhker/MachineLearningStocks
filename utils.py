@@ -20,6 +20,8 @@ def data_string_to_float(number_string):
         return float(number_string.replace("M", "")) * 1000000
     elif "K" in number_string:
         return float(number_string.replace("K", "")) * 1000
+    elif "T" in number_string:
+        return float(number_string.replace("T", "")) * 1000000000000   
     else:
         return float(number_string)
 
@@ -61,11 +63,21 @@ def duplicate_error_check(df):
 
 def status_calc(stock, sp500, outperformance=10):
     """A simple function to classify whether a stock outperformed the S&P500
-    :param stock: stock price
-    :param sp500: S&P500 price
-    :param outperformance: stock is classified 1 if stock price > S&P500 price + outperformance
+    :param stock: stock price change
+    :param sp500: S&P500 price change
+    :param outperformance: stock is classified 1 if stock price change > S&P500 price + outperformance
     :return: true/false
     """
     if outperformance < 0:
         raise ValueError("outperformance must be positive")
     return stock - sp500 >= outperformance
+
+def status_calc_self(stock, outperformance=10):
+    """A simple function to classify whether the stock price increased
+    :param stock: stock price change
+    :param outperformance: stock is classified 1 if stock price change > outperformance
+    :return: true/false
+    """
+    if outperformance < 0:
+        raise ValueError("outperformance must be positive")
+    return stock >= outperformance
