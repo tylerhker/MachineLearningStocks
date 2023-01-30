@@ -1,3 +1,10 @@
+def intersection(lst1, lst2):
+    lst3 = []
+    for i in lst1:
+        if i in lst2:
+            lst3.append(i)
+    return lst3
+
 def data_string_to_float(number_string):
     """
     The result of our regex search is a number stored as a string, but we need a float.

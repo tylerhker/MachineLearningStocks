@@ -200,12 +200,12 @@ def parse_keystats(sp500_df, stock_df):
             # Convert from unix time to YYYY-MM-DD, so we can look for the price in the dataframe
             # then calculate the percentage change.
             current_date = datetime.fromtimestamp(unix_time).strftime("%Y-%m-%d")
-            # one_year_later = datetime.fromtimestamp(unix_time + 31536000).strftime(
-            #     "%Y-%m-%d"
-            # )
-            one_year_later = datetime.fromtimestamp(unix_time + 15768000).strftime(
+            one_year_later = datetime.fromtimestamp(unix_time + 31536000).strftime(
                 "%Y-%m-%d"
             )
+            # one_year_later = datetime.fromtimestamp(unix_time + 15768000).strftime(
+                # "%Y-%m-%d"
+            # )
             # SP500 prices now and one year later, and the percentage change
             sp500_price = float(sp500_df.loc[current_date, "Adj Close"])
             sp500_1y_price = float(sp500_df.loc[one_year_later, "Adj Close"])
@@ -249,4 +249,4 @@ def parse_keystats(sp500_df, stock_df):
 if __name__ == "__main__":
     sp500_df, stock_df = preprocess_price_data()
     parse_keystats(sp500_df, stock_df)
-    # get_sp500list()
+

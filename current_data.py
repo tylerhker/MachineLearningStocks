@@ -80,8 +80,8 @@ def check_yahoo():
     ticker_list = sp500ticker()
 
     # Required in macOS to remove the hidden index file.
-    if ".DS_Store" in ticker_list:
-        ticker_list.remove(".DS_Store")
+    # if ".DS_Store" in ticker_list:
+    #     ticker_list.remove(".DS_Store")
 
     for ticker in tqdm(ticker_list, desc="Download progress:", unit="tickers"):
         try:

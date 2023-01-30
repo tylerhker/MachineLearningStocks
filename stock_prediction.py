@@ -1,11 +1,11 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from utils import data_string_to_float, status_calc, status_calc_self
+from utils import data_string_to_float, status_calc, status_calc_self, intersection
 from download_historical_prices import build_result_dataset
-
+import csv
 
 # The percentage by which a stock has to beat the S&P500 to be considered a 'buy'
-OUTPERFORMANCE = 10
+OUTPERFORMANCE = 15
 
 
 def build_data_set():
@@ -154,22 +154,41 @@ def predict_stocks():
         print(
             f"{len(invest_list)} stocks predicted to outperform the S&P500 by more than {OUTPERFORMANCE}%:"
         )
-        print(" ".join(invest_list))
+        # print(" ".join(invest_list))
+        print(invest_list)
         return invest_list
 
-def list_ticker_result():
-    with open('result.txt','r') as f:
-        ticker_result = csv.reader(f,delimiter=' ')        
-        tickersall=[]
-        for ticker in ticker_result:
-            tickersall.append(ticker)
+# def list_ticker_result():
+#     with open('result.txt','r') as f:
+#         ticker_result = csv.reader(f,delimiter=' ')        
+#         tickersall=[]
+#         for ticker in ticker_result:
+#             tickersall.append(ticker)
 
-        tickersall = tickersall[0]
+#         tickersall = tickersall[0]
 
-    return tickersall
+#     return tickersall
+
+def gen_common_list(loop=3):
+    invest_list_final = []
+    invest_list = []
+
+    for i in range(loop):
+        invest_list = predict_stocks()
+        print(f"{len(invest_list_final)} stocks are in common results in loop {i+1}")
+        if len(invest_list_final) == 0:
+            invest_list_final = invest_list
+        else:
+            invest_list_final = intersection(invest_list_final, invest_list)
+            
+    print(invest_list_final)
+    return invest_list_final
+        
 
 if __name__ == "__main__":
     print("Building dataset and predicting stocks...")
-    predict_stocks()
-    ticker_list = list_ticker_result()
-    build_result_dataset(ticker_list, start='2021-01-01', end='2023-01-31')
+    # invest_list = predict_stocks()
+    # ticker_list = list_ticker_result()
+    invest_list = gen_common_list(loop=10)
+    build_result_dataset(invest_list, start='2021-01-01', end='2023-01-31')
+    print('test')
