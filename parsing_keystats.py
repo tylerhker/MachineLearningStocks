@@ -401,6 +401,6 @@ def parse_keystats(sp500_df, stock_df):
 
 if __name__ == "__main__":
     sp500_df, stock_df = preprocess_price_data()
-    # parse_keystats(sp500_df, stock_df)
-    parse_keystats_avg(sp500_df, stock_df)
+    parse_keystats(sp500_df, stock_df)
+    # parse_keystats_avg(sp500_df, stock_df)
 

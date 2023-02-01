@@ -190,5 +190,4 @@ if __name__ == "__main__":
     # invest_list = predict_stocks()
     # ticker_list = list_ticker_result()
     invest_list = gen_common_list(loop=10)
-    build_result_dataset(invest_list, start='2021-01-01', end='2023-01-31')
-    print('test')
+    # build_result_dataset(invest_list, start='2021-01-01', end='2023-01-31')
